@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USD Currency Index</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+      color: #1f2937;
+    }
+    header {
+      background-color: #1e3a8a;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+    }
+    header .title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .back-link {
+      display: flex;
+      align-items: center;
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      background-color: #374151;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+    .back-link:hover {
+      background-color: #4b5563;
+    }
+    .back-link svg {
+      margin-right: 6px;
+    }
+    main {
+      padding: 40px 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    h1::before {
+      content: "\1F4B1";
+      font-size: 28px;
+    }
+    p {
+      color: #64748b;
+      font-size: 16px;
+      margin-bottom: 30px;
+    }
+    select, button {
+      margin-bottom: 25px;
+      padding: 10px 14px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    }
+    button {
+      margin-left: 12px;
+      background-color: #3b82f6;
+      color: white;
+      cursor: pointer;
+    }
+    table {
+      margin: 0 auto 40px;
+      width: 90%;
+      max-width: 800px;
+      border-collapse: collapse;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+      text-align: left;
+      padding: 14px;
+    }
+    td {
+      background-color: #ffffff;
+      color: #1e293b;
+      padding: 14px;
+      text-align: left;
+    }
+    tr:hover td {
+      background-color: #f9fafb;
+    }
+    td img {
+      width: 20px;
+      height: 14px;
+      border-radius: 2px;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+    canvas {
+      max-width: 800px;
+      margin: 0 auto;
+      border-radius: 12px;
+      background-color: #ffffff;
+      padding: 20px;
+      box-shadow: 0 1px 10px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">USD Currency Index</div>
+    <a href="/dashboard" class="back-link">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 1-.5.5H2.707l4.147 4.146a.5.5 0 0 1-.708.708l-5-5a.5.5 0 0 1 0-.708l5-5a.5.5 0 1 1 .708.708L2.707 7.5H14.5A.5.5 0 0 1 15 8z"/>
+      </svg>
+      Dashboard
+    </a>
+  </header>
+
+  <main>
+    <h1>Static Exchange Rate Snapshot</h1>
+    <p id="lastUpdated">Last updated: June 14, 2025</p>
+
+    <label for="currencyFilter">Filter by currency:</label><br>
+    <select id="currencyFilter" onchange="filterCurrency()">
+      <option value="all">Show All</option>
+      <option value="EUR">EUR</option>
+      <option value="PHP">PHP</option>
+      <option value="JPY">JPY</option>
+      <option value="MXN">MXN</option>
+      <option value="THB">THB</option>
+    </select>
+    <button onclick="fetchLiveRates()">🔄 Refresh Rates</button>
+
+    <table id="currencyTable">
+      <thead>
+        <tr>
+          <th>Currency</th>
+          <th>1 USD =</th>
+          <th>Last Updated</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+      </tbody>
+    </table>
+
+    <canvas id="currencyChart" width="800" height="400"></canvas>
+  </main>
+
+  <script>
+    let chart;
+    const ctx = document.getElementById('currencyChart').getContext('2d');
+    const tableBody = document.getElementById('tableBody');
+
+    const currencies = [
+      { code: 'EUR', flag: 'eu' },
+      { code: 'PHP', flag: 'ph' },
+      { code: 'JPY', flag: 'jp' },
+      { code: 'MXN', flag: 'mx' },
+      { code: 'THB', flag: 'th' }
+    ];
+
+    async function fetchLiveRates() {
+      try {
+        const res = await fetch('https://api.exchangerate.host/latest?base=USD');
+        const data = await res.json();
+        const now = new Date().toLocaleDateString();
+        document.getElementById('lastUpdated').innerText = `Last updated: ${now}`;
+
+        const labels = [], values = [];
+        tableBody.innerHTML = '';
+
+        currencies.forEach(curr => {
+          const rate = data.rates[curr.code].toFixed(2);
+          labels.push(curr.code);
+          values.push(rate);
+          const row = `<tr data-currency="${curr.code}">
+            <td title="${curr.code} - ${data.base}"><img src="https://flagcdn.com/w40/${curr.flag}.png">${curr.code}</td>
+            <td>${rate}</td>
+            <td>${now}</td>
+          </tr>`;
+          tableBody.innerHTML += row;
+        });
+
+        renderChart(labels, values);
+      } catch (err) {
+        alert('Failed to fetch live rates.');
+        console.error(err);
+      }
+    }
+
+    function renderChart(labels, data) {
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '1 USD =',
+            data: data,
+            backgroundColor: '#3b82f6',
+            borderRadius: 8,
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: '#334155'
+              }
+            },
+            x: {
+              ticks: {
+                color: '#334155'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: (context) => `1 USD = ${context.formattedValue}`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function filterCurrency() {
+      const selected = document.getElementById('currencyFilter').value;
+      const rows = document.querySelectorAll('#currencyTable tbody tr');
+      const labels = [], data = [];
+
+      rows.forEach(row => {
+        if (selected === 'all' || row.dataset.currency === selected) {
+          row.style.display = '';
+          labels.push(row.cells[0].innerText.trim());
+          data.push(parseFloat(row.cells[1].innerText));
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      renderChart(labels, data);
+    }
+
+    window.onload = fetchLiveRates;
+  </script>
+</body>
+</html>
