@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ExpatWealth | Financial Tools for Expats & Nomads</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+      color: #1f2937;
+    }
+    header {
+      background-color: #1e3a8a;
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header .logo {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    header nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 24px;
+      font-weight: 500;
+    }
+    .hero {
+      padding: 80px 20px;
+      text-align: center;
+      background-color: #f1f5f9;
+    }
+    .hero h1 {
+      font-size: 42px;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin-bottom: 16px;
+    }
+    .hero p {
+      font-size: 18px;
+      color: #475569;
+      max-width: 640px;
+      margin: 0 auto 32px;
+    }
+    .hero button {
+      background-color: #3b82f6;
+      color: white;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .hero button:hover {
+      background-color: #2563eb;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 40px;
+      padding: 60px 40px;
+      background-color: #ffffff;
+    }
+    .feature {
+      background-color: #f8fafc;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      text-align: left;
+    }
+    .feature h3 {
+      margin-top: 0;
+      color: #1e3a8a;
+      font-size: 18px;
+    }
+    .feature p {
+      color: #475569;
+      font-size: 15px;
+    }
+    .pricing {
+      padding: 60px 20px;
+      background-color: #f1f5f9;
+      text-align: center;
+    }
+    .pricing h2 {
+      font-size: 32px;
+      color: #1e3a8a;
+      margin-bottom: 16px;
+    }
+    .plans {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 40px;
+    }
+    .plan {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      max-width: 300px;
+      flex: 1;
+    }
+    .plan h3 {
+      color: #1e3a8a;
+      font-size: 20px;
+    }
+    .plan .price {
+      font-size: 28px;
+      color: #3b82f6;
+      margin: 10px 0;
+    }
+    .plan ul {
+      list-style: none;
+      padding: 0;
+      color: #475569;
+      font-size: 15px;
+      text-align: left;
+    }
+    .plan ul li {
+      margin-bottom: 10px;
+    }
+    .plan button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #1e3a8a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .footer {
+      background-color: #1e3a8a;
+      color: white;
+      padding: 30px;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">ExpatWealth</div>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="/signup">Sign Up</a>
+      <a href="/login">Log In</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Your Financial Toolkit for Life Abroad</h1>
+    <p>Track currency, send invoices, and manage income — all in one place, built for expats and digital nomads.</p>
+    <button onclick="location.href='/signup'">Get Started</button>
+  </section>
+
+  <section id="features" class="features">
+    <div class="feature">
+      <h3>💱 Currency Index</h3>
+      <p>Live exchange rate dashboard with charting and filtering for USD to popular expat currencies.</p>
+    </div>
+    <div class="feature">
+      <h3>🧾 Invoice Generator</h3>
+      <p>Create and send invoices with custom fields, multi-currency support, and PDF export.</p>
+    </div>
+    <div class="feature">
+      <h3>📊 Financial Dashboard</h3>
+      <p>Visual overview of your balance, income, and expenses with modern charts and summaries.</p>
+    </div>
+  </section>
+
+  <section id="pricing" class="pricing">
+    <h2>Simple Pricing for Global Living</h2>
+    <div class="plans">
+      <div class="plan">
+        <h3>Expats</h3>
+        <div class="price">$2.99/mo</div>
+        <ul>
+          <li>Currency Index Dashboard</li>
+          <li>Financial Summary Tools</li>
+          <li>Email Support</li>
+        </ul>
+        <button onclick="location.href='/signup'">Choose Plan</button>
+      </div>
+      <div class="plan">
+        <h3>Digital Nomads</h3>
+        <div class="price">$4.99/mo</div>
+        <ul>
+          <li>All Expat Features</li>
+          <li>Invoice Generator (PDF)</li>
+          <li>Multi-Currency Income Tracking</li>
+          <li>Priority Support</li>
+        </ul>
+        <button onclick="location.href='/signup'">Choose Plan</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    &copy; 2025 ExpatWealth. Built for global living. All rights reserved.
+  </footer>
+</body>
+</html>
