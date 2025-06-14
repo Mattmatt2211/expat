@@ -65,7 +65,7 @@
       font-size: 16px;
       margin-bottom: 30px;
     }
-    select {
+    select, button {
       margin-bottom: 25px;
       padding: 10px 14px;
       font-size: 16px;
@@ -73,6 +73,12 @@
       border: 1px solid #cbd5e1;
       background-color: #ffffff;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    }
+    button {
+      margin-left: 12px;
+      background-color: #3b82f6;
+      color: white;
+      cursor: pointer;
     }
     table {
       margin: 0 auto 40px;
@@ -128,8 +134,8 @@
   </header>
 
   <main>
-    <h1>Static Exchange Rate Snapshot</h1>
-    <p id="lastUpdated">Last updated: June 14, 2025</p>
+    <h1>Live Exchange Rate Snapshot</h1>
+    <p id="lastUpdated">Loading...</p>
 
     <label for="currencyFilter">Filter by currency:</label><br>
     <select id="currencyFilter" onchange="filterCurrency()">
@@ -140,6 +146,7 @@
       <option value="MXN">MXN</option>
       <option value="THB">THB</option>
     </select>
+    <button onclick="fetchRatesFromProxy()">🔄 Refresh Rates</button>
 
     <table id="currencyTable">
       <thead>
@@ -160,14 +167,6 @@
     const ctx = document.getElementById('currencyChart').getContext('2d');
     const tableBody = document.getElementById('tableBody');
 
-    const rates = {
-      "EUR": 0.93,
-      "PHP": 57.32,
-      "JPY": 155.14,
-      "MXN": 18.17,
-      "THB": 36.14
-    };
-
     const currencies = [
       { code: 'EUR', flag: 'eu' },
       { code: 'PHP', flag: 'ph' },
@@ -176,25 +175,34 @@
       { code: 'THB', flag: 'th' }
     ];
 
-    const now = new Date().toLocaleDateString();
-    document.getElementById('lastUpdated').innerText = `Last updated: ${now}`;
+    async function fetchRatesFromProxy() {
+      try {
+        const res = await fetch('https://expatwealth-proxy.onrender.com/api/rates');
+        const data = await res.json();
+        const now = new Date().toLocaleDateString();
+        document.getElementById('lastUpdated').innerText = `Last updated: ${now}`;
 
-    const labels = [], values = [];
-    tableBody.innerHTML = '';
+        const labels = [], values = [];
+        tableBody.innerHTML = '';
 
-    currencies.forEach(curr => {
-      const rate = rates[curr.code].toFixed(2);
-      labels.push(curr.code);
-      values.push(rate);
-      const row = `<tr data-currency="${curr.code}">
-        <td title="${curr.code}"><img src="https://flagcdn.com/w40/${curr.flag}.png"> ${curr.code}</td>
-        <td>${rate}</td>
-        <td>${now}</td>
-      </tr>`;
-      tableBody.innerHTML += row;
-    });
+        currencies.forEach(curr => {
+          const rate = data.rates[curr.code].toFixed(2);
+          labels.push(curr.code);
+          values.push(rate);
+          const row = `<tr data-currency="${curr.code}">
+            <td title="${curr.code}"><img src="https://flagcdn.com/w40/${curr.flag}.png"> ${curr.code}</td>
+            <td>${rate}</td>
+            <td>${now}</td>
+          </tr>`;
+          tableBody.innerHTML += row;
+        });
 
-    renderChart(labels, values);
+        renderChart(labels, values);
+      } catch (err) {
+        document.getElementById('lastUpdated').innerText = 'Failed to load live rates.';
+        console.error('Error fetching rates:', err);
+      }
+    }
 
     function renderChart(labels, data) {
       if (chart) chart.destroy();
@@ -214,20 +222,12 @@
           scales: {
             y: {
               beginAtZero: true,
-              ticks: {
-                color: '#334155'
-              }
+              ticks: { color: '#334155' }
             },
-            x: {
-              ticks: {
-                color: '#334155'
-              }
-            }
+            x: { ticks: { color: '#334155' } }
           },
           plugins: {
-            legend: {
-              display: false
-            },
+            legend: { display: false },
             tooltip: {
               callbacks: {
                 label: (context) => `1 USD = ${context.formattedValue}`
@@ -255,9 +255,12 @@
 
       renderChart(labels, data);
     }
+
+    window.onload = fetchRatesFromProxy;
   </script>
 </body>
 </html>
 
-    
   
+
+       
