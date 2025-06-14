@@ -146,7 +146,6 @@
       <option value="MXN">MXN</option>
       <option value="THB">THB</option>
     </select>
-    <button onclick="fetchLiveRates()">🔄 Refresh Rates</button>
 
     <table id="currencyTable">
       <thead>
@@ -156,8 +155,7 @@
           <th>Last Updated</th>
         </tr>
       </thead>
-      <tbody id="tableBody">
-      </tbody>
+      <tbody id="tableBody"></tbody>
     </table>
 
     <canvas id="currencyChart" width="800" height="400"></canvas>
@@ -168,6 +166,14 @@
     const ctx = document.getElementById('currencyChart').getContext('2d');
     const tableBody = document.getElementById('tableBody');
 
+    const rates = {
+      "EUR": 0.93,
+      "PHP": 57.32,
+      "JPY": 155.14,
+      "MXN": 18.17,
+      "THB": 36.14
+    };
+
     const currencies = [
       { code: 'EUR', flag: 'eu' },
       { code: 'PHP', flag: 'ph' },
@@ -176,34 +182,25 @@
       { code: 'THB', flag: 'th' }
     ];
 
-    async function fetchLiveRates() {
-      try {
-        const res = await fetch('https://api.exchangerate.host/latest?base=USD');
-        const data = await res.json();
-        const now = new Date().toLocaleDateString();
-        document.getElementById('lastUpdated').innerText = `Last updated: ${now}`;
+    const now = new Date().toLocaleDateString();
+    document.getElementById('lastUpdated').innerText = `Last updated: ${now}`;
 
-        const labels = [], values = [];
-        tableBody.innerHTML = '';
+    const labels = [], values = [];
+    tableBody.innerHTML = '';
 
-        currencies.forEach(curr => {
-          const rate = data.rates[curr.code].toFixed(2);
-          labels.push(curr.code);
-          values.push(rate);
-          const row = `<tr data-currency="${curr.code}">
-            <td title="${curr.code} - ${data.base}"><img src="https://flagcdn.com/w40/${curr.flag}.png">${curr.code}</td>
-            <td>${rate}</td>
-            <td>${now}</td>
-          </tr>`;
-          tableBody.innerHTML += row;
-        });
+    currencies.forEach(curr => {
+      const rate = rates[curr.code].toFixed(2);
+      labels.push(curr.code);
+      values.push(rate);
+      const row = `<tr data-currency="${curr.code}">
+        <td><img src="https://flagcdn.com/w40/${curr.flag}.png">${curr.code}</td>
+        <td>${rate}</td>
+        <td>${now}</td>
+      </tr>`;
+      tableBody.innerHTML += row;
+    });
 
-        renderChart(labels, values);
-      } catch (err) {
-        alert('Failed to fetch live rates.');
-        console.error(err);
-      }
-    }
+    renderChart(labels, values);
 
     function renderChart(labels, data) {
       if (chart) chart.destroy();
@@ -218,54 +215,6 @@
             borderRadius: 8,
           }]
         },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                color: '#334155'
-              }
-            },
-            x: {
-              ticks: {
-                color: '#334155'
-              }
-            }
-          },
-          plugins: {
-            legend: {
-              display: false
-            },
-            tooltip: {
-              callbacks: {
-                label: (context) => `1 USD = ${context.formattedValue}`
-              }
-            }
-          }
-        }
-      });
-    }
+        
 
-    function filterCurrency() {
-      const selected = document.getElementById('currencyFilter').value;
-      const rows = document.querySelectorAll('#currencyTable tbody tr');
-      const labels = [], data = [];
-
-      rows.forEach(row => {
-        if (selected === 'all' || row.dataset.currency === selected) {
-          row.style.display = '';
-          labels.push(row.cells[0].innerText.trim());
-          data.push(parseFloat(row.cells[1].innerText));
-        } else {
-          row.style.display = 'none';
-        }
-      });
-
-      renderChart(labels, data);
-    }
-
-    window.onload = fetchLiveRates;
-  </script>
-</body>
-</html>
+   
