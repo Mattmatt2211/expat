@@ -1,6 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-const fetch = require('node-fetch');
+import express from 'express';
+import cors from 'cors';
+import fetch from 'node-fetch';
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -12,8 +13,11 @@ app.get('/api/rates', async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch exchange rates' });
+    console.error(err);
+    res.status(500).json({ error: 'Unable to fetch exchange rates' });
   }
 });
 
-app.listen(PORT, () => console.log(`Proxy running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Proxy server listening on port ${PORT}`);
+});
